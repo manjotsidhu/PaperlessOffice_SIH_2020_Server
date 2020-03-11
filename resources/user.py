@@ -1,15 +1,18 @@
 from flask import Response, request
 from database.models import User
 from flask_restful import Resource
-from flask_jwt_extended import jwt_required
+from flask_jwt_extended import jwt_required, get_jwt_identity
+
+from resources.auth import admin_required
+
 
 class UsersApi(Resource):
-    @jwt_required
+    @admin_required
     def get(self):
         u = User.objects().to_json()
         return Response(u, mimetype="application/json", status=200)
 
-    @jwt_required
+    @admin_required
     def post(self):
         body = request.get_json()
         user = User(**body).save()
@@ -19,11 +22,13 @@ class UsersApi(Resource):
 
 class UserApi(Resource):
     @jwt_required
-    def get(self, id):
-        u = User.objects.get(id=id).to_json()
+    def get(self):
+        user = get_jwt_identity()
+        print(user)
+        u = User.objects.get(username='user').to_json()
         return Response(u, mimetype="application/json", status=200)
 
     @jwt_required
-    def delete(self, id):
-        u = User.objects.get(id=id).delete()
+    def delete(self):
+        u = User.objects.get(id=get_jwt_identity()).delete()
         return '', 200

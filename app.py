@@ -26,6 +26,7 @@ jwt = JWTManager(app)
 
 MONGO_URL = os.environ.get('MONGO_URL')
 if not MONGO_URL:
+    print("USING LOCAL MONGO DB")
     app.config['MONGODB_SETTINGS'] = {
         'host': 'mongodb://localhost:27017/daftar'
     }

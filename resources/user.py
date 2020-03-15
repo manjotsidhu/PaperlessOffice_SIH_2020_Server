@@ -26,7 +26,6 @@ class UserApi(Resource):
     @jwt_required
     def get(self):
         user = get_jwt_identity()
-        print(user)
         u = json.dumps(user)
         return Response(u, mimetype="application/json", status=200)
 

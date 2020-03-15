@@ -26,10 +26,9 @@ class UserApi(Resource):
     @jwt_required
     def get(self):
         user = get_jwt_identity()
-        u = json.dumps(user)
-        return Response(u, mimetype="application/json", status=200)
+        return Response(json.dumps(user), mimetype="application/json", status=200)
 
     @jwt_required
     def delete(self):
-        u = User.objects.get(id=get_jwt_identity()).delete()
+        User.objects.get(id=get_jwt_identity()).delete()
         return '', 200

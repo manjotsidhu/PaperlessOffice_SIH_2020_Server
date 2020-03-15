@@ -15,7 +15,7 @@ def admin_required(view_function):
     def wrapper(*args, **kwargs):
         jwt_data, jwt_header = _decode_jwt_from_request(request_type='access')
 
-        if jwt_data['identity']['username'] == 'admin':
+        if jwt_data['identity']['role'] == 'admin':
             authorized = True
         else:
             authorized = False

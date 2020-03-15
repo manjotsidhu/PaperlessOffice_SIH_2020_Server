@@ -1,3 +1,5 @@
+import json
+
 from flask import Response, request
 from database.models import User
 from flask_restful import Resource
@@ -25,7 +27,7 @@ class UserApi(Resource):
     def get(self):
         user = get_jwt_identity()
         print(user)
-        u = User.objects.get(username='user').to_json()
+        u = json.dumps(user)
         return Response(u, mimetype="application/json", status=200)
 
     @jwt_required

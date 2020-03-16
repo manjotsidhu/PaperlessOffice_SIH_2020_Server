@@ -18,8 +18,7 @@ class UsersApi(Resource):
     def post(self):
         body = request.get_json()
         user = User(**body).save()
-        id = user.id
-        return {'id': str(id)}, 200
+        return {'id': str(user.id)}, 200
 
 
 class UserApi(Resource):
@@ -31,4 +30,5 @@ class UserApi(Resource):
     @jwt_required
     def delete(self):
         User.objects.get(id=get_jwt_identity()).delete()
+        CA.objects.get(user_id=get_jwt_identity().delete())
         return '', 200

@@ -32,8 +32,10 @@ class SignupApi(Resource):
     def post(self):
         body = request.get_json()
         user = User(**body)
+        user.generate_keys()
         user.hash_password()
         user.save()
+        user.add_ca()
         id = user.id
         return {'id': str(id)}, 200
 

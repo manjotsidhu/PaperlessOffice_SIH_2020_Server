@@ -1,7 +1,7 @@
 import json
 
 from flask import Response, request
-from database.models import User
+from database.models import User, Ca
 from flask_restful import Resource
 from flask_jwt_extended import jwt_required, get_jwt_identity
 
@@ -30,5 +30,5 @@ class UserApi(Resource):
     @jwt_required
     def delete(self):
         User.objects.get(id=get_jwt_identity()).delete()
-        CA.objects.get(user_id=get_jwt_identity().delete())
+        Ca.objects.get(user_id=get_jwt_identity().delete())
         return '', 200

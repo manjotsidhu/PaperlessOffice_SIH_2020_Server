@@ -28,6 +28,24 @@ def admin_required(view_function):
     return jwt_required(wrapper)
 
 
+def authority_required(view_function):
+    @wraps(view_function)
+    def wrapper(*args, **kwargs):
+        jwt_data, jwt_header = _decode_jwt_from_request(request_type='access')
+
+        if jwt_data['identity']['role'] == 'authority':
+            authorized = True
+        else:
+            authorized = False
+
+        if not authorized:
+            raise NoAuthorizationError("You are not admin")
+
+        return view_function(*args, **kwargs)
+
+    return jwt_required(wrapper)
+
+
 class SignupApi(Resource):
     def post(self):
         body = request.get_json()
@@ -36,8 +54,7 @@ class SignupApi(Resource):
         user.hash_password()
         user.save()
         user.add_ca()
-        id = user.id
-        return {'id': str(id)}, 200
+        return {'id': str(user.id)}, 200
 
 
 class LoginApi(Resource):

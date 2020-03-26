@@ -1,7 +1,7 @@
 
 from ellipticcurve.privateKey import PrivateKey, toBytes
 from ellipticcurve.publicKey import PublicKey
-from mongoengine import CASCADE
+from mongoengine import CASCADE, ReferenceField
 
 from .db import db
 from flask_bcrypt import generate_password_hash, check_password_hash
@@ -39,3 +39,18 @@ class User(db.Document):
 class Ca(db.Document):
     user = db.ReferenceField(User, required=True, unique=True, reverse_delete_rule=CASCADE)
     public_key = db.StringField(required=True)
+
+
+class Field(db.Document):
+    name = db.StringField(required=True)
+    type = db.StringField(required=True)
+    isRequired = db.BooleanField(default=False)
+    maxLength = db.IntField(default=10)
+
+
+class Form(db.Document):
+    creator = ReferenceField(User, required=True, reverse_delete_rule=CASCADE)
+    title = db.StringField(required=True)
+    description = db.StringField()
+    fields = db.ListField(ReferenceField(Field))
+

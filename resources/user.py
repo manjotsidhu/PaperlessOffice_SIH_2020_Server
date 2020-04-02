@@ -29,6 +29,7 @@ class UserApi(Resource):
 
     @jwt_required
     def delete(self):
+        # TODO: FIX THIS
         User.objects.get(id=get_jwt_identity()).delete()
         Ca.objects.get(user_id=get_jwt_identity().delete())
         return '', 200

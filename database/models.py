@@ -1,8 +1,13 @@
+import datetime
+import os
+import time
 
-from ellipticcurve.privateKey import PrivateKey, toBytes
+from ellipticcurve.privateKey import PrivateKey
 from ellipticcurve.publicKey import PublicKey
+from flask_jwt_extended import get_jwt_identity
 from mongoengine import CASCADE, ReferenceField
 
+from resources.utils import get_file_extension, UPLOAD_FOLDER
 from .db import db
 from flask_bcrypt import generate_password_hash, check_password_hash
 
@@ -54,3 +59,19 @@ class Form(db.Document):
     description = db.StringField()
     fields = db.ListField(ReferenceField(Field))
 
+
+class File(db.Document):
+    # TODO: sharedTo Field
+    creator = db.StringField(required=True)
+    file = db.StringField()
+    fileExtension = db.StringField()
+    fileName = db.StringField(required=True)
+    fileDescription = db.StringField()
+    visibility = db.StringField(default='private')
+    timestamp = db.DateTimeField(required=True, default=datetime.datetime.utcnow)
+
+    def save_file(self, file):
+        self.fileExtension = get_file_extension(file.filename)
+        self.file = get_jwt_identity()['_id']['$oid'] + "_" + time.strftime("%Y%m%d-%H%M%S") + "." + self.fileExtension
+
+        #file.save(os.path.join(UPLOAD_FOLDER, self.file))

@@ -8,10 +8,16 @@ from flask_jwt_extended import JWTManager
 from flask_restful import Api
 
 from resources.routes import initialize_routes
+from resources.utils import UPLOAD_FOLDER
+
+os.environ["ENV_FILE_LOCATION"] = ".env"
 
 app = Flask(__name__)
-os.environ["ENV_FILE_LOCATION"] = ".env"
 app.config.from_envvar('ENV_FILE_LOCATION')
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+os.makedirs(os.path.join(app.instance_path, 'uploads'), exist_ok=True)
+app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16 MB
+
 api = Api(app)
 
 

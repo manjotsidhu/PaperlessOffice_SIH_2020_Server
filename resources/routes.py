@@ -1,5 +1,6 @@
 from resources.form import SaveFormApi, GetFormApi
 from resources.index import IndexApi
+from resources.storage import StorageApi
 from .user import UsersApi, UserApi
 from .auth import SignupApi, LoginApi
 
@@ -12,3 +13,4 @@ def initialize_routes(api):
     api.add_resource(LoginApi, '/auth/login')
     api.add_resource(SaveFormApi, '/form')
     api.add_resource(GetFormApi, '/form/<string:id>')
+    api.add_resource(StorageApi, '/storage')

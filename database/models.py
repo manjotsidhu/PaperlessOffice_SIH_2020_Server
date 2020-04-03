@@ -74,4 +74,4 @@ class File(db.Document):
         self.fileExtension = get_file_extension(file.filename)
         self.file = get_jwt_identity()['_id']['$oid'] + "_" + time.strftime("%Y%m%d-%H%M%S") + "." + self.fileExtension
 
-        #file.save(os.path.join(UPLOAD_FOLDER, self.file))
+        file.save(os.path.join(UPLOAD_FOLDER, self.file))

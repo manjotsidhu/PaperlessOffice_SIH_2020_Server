@@ -1,7 +1,7 @@
-from flask import request
-from flask_jwt_extended import jwt_required
+from flask import request, Response
+from flask_jwt_extended import jwt_required, get_jwt_identity
 from flask_restful import Resource
-
+from mongoengine import Q
 from database.models import File
 from resources.utils import allowed_file
 
@@ -14,7 +14,7 @@ class StorageApi(Resource):
             return {'No File Sent'}, 404
         file = request.files['file']
         if file.filename == '':
-            return {'No File Selected'}, 403
+            return {'No File Selected'}, 404
         if file and allowed_file(file.filename):
             body = request.form.to_dict()
             form = File(**body)
@@ -26,12 +26,12 @@ class StorageApi(Resource):
 
     @jwt_required
     def get(self):
-        #TODO
-        return
+        q = File.objects(Q(creator=get_jwt_identity()['_id']['$oid']) | Q(visibility='public'))
+        return Response(q.to_json(), mimetype="application/json", status=200)
 
     @jwt_required
     def delete(self):
-        #TODO
+
         return
 
     @jwt_required

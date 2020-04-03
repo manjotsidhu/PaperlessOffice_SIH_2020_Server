@@ -42,7 +42,7 @@ class User(db.Document):
 
 
 class Ca(db.Document):
-    user = db.ReferenceField(User, required=True, unique=True, reverse_delete_rule=CASCADE)
+    user = db.StringField(required=True, unique=True)
     public_key = db.StringField(required=True)
 
 
@@ -54,7 +54,7 @@ class Field(db.Document):
 
 
 class Form(db.Document):
-    creator = ReferenceField(User, required=True, reverse_delete_rule=CASCADE)
+    creator = db.StringField(required=True)
     title = db.StringField(required=True)
     description = db.StringField()
     fields = db.ListField(ReferenceField(Field))

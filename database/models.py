@@ -60,7 +60,7 @@ class Form(db.Document):
     fields = db.ListField(ReferenceField(Field))
 
 
-class File(db.Document):
+class Storage(db.Document):
     # TODO: sharedTo Field
     creator = db.StringField(required=True)
     file = db.StringField()

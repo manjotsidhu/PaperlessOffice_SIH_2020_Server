@@ -20,7 +20,7 @@ class StorageApi(Resource):
             form = Storage(**body)
             form.save_file(file)
             form.save()
-            return {'File Uploaded'}, 200
+            return {'id': str(form.id)}, 200
         else:
             return {'Error: Invalid Document'}, 405
 
@@ -29,11 +29,20 @@ class StorageApi(Resource):
         q = Storage.objects(Q(creator=get_jwt_identity()['_id']['$oid']) | Q(visibility='public'))
         return Response(q.to_json(), mimetype="application/json", status=200)
 
-    @jwt_required
-    def delete(self):
 
+class UserStorageApi(Resource):
+
+    @jwt_required
+    def get(self, doc_id):
+        return Response(Storage.objects((Q(creator=get_jwt_identity()['_id']['$oid']) & Q(id=doc_id)) |
+                        Q(visibility='public')).get().to_json(), mimetype="application/json", status=200)
+
+    @jwt_required
+    def update(self, doc_id):
+        # TODO
         return
 
     @jwt_required
-    def update(self):
+    def delete(self, doc_id):
+        # TODO
         return

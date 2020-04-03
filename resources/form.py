@@ -3,7 +3,7 @@ from flask_jwt_extended import jwt_required
 from flask_restful import Resource
 from flask import Response, request
 
-from database.models import Form, Field
+from database.models import Form
 
 
 class SaveFormApi(Resource):

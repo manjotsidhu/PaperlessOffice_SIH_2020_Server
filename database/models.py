@@ -54,7 +54,7 @@ class Field(db.Document):
 
 
 class Form(db.Document):
-    creator = db.StringField(required=True)
+    creator = db.StringField(required=True, default=get_jwt_identity()['_id']['$oid'])
     title = db.StringField(required=True)
     description = db.StringField()
     fields = db.ListField(ReferenceField(Field))
@@ -62,7 +62,7 @@ class Form(db.Document):
 
 class Storage(db.Document):
     # TODO: sharedTo Field
-    creator = db.StringField(required=True)
+    creator = db.StringField(required=True, default=get_jwt_identity()['_id']['$oid'])
     file = db.StringField()
     fileExtension = db.StringField()
     fileName = db.StringField(required=True)

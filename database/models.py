@@ -5,7 +5,7 @@ import time
 from ellipticcurve.privateKey import PrivateKey
 from ellipticcurve.publicKey import PublicKey
 from flask_jwt_extended import get_jwt_identity
-from mongoengine import CASCADE, ReferenceField
+from mongoengine import ReferenceField
 
 from resources.utils import get_file_extension, UPLOAD_FOLDER
 from .db import db
@@ -22,6 +22,12 @@ class User(db.Document):
     private_key = db.StringField()
     public_key = db.StringField()
 
+    def save(self, *args, **kwargs):
+        self.generate_keys()
+        self.hash_password()
+
+        super(User, self).save(*args, **kwargs)
+
     def generate_keys(self):
         pr_key = PrivateKey()
         self.private_key = str(pr_key.toPem())
@@ -37,7 +43,7 @@ class User(db.Document):
         return PublicKey.fromPem(self.public_key)
 
     def add_ca(self):
-        ca = Ca(user=self, public_key=self.public_key)
+        ca = Ca(user=str(self.id), public_key=self.public_key)
         ca.save()
 
 
@@ -54,21 +60,37 @@ class Field(db.Document):
 
 
 class Form(db.Document):
-    creator = db.StringField(required=True, default=get_jwt_identity()['_id']['$oid'])
+    creator = db.StringField(required=True)
     title = db.StringField(required=True)
     description = db.StringField()
     fields = db.ListField(ReferenceField(Field))
 
+    def __init__(self, *args, **kwargs):
+        db.Document.__init__(self, *args, **kwargs)
+
+        self.creator = get_jwt_identity()['_id']['$oid']
+
 
 class Storage(db.Document):
     # TODO: sharedTo Field
-    creator = db.StringField(required=True, default=get_jwt_identity()['_id']['$oid'])
+    creator = db.StringField(required=True)
     file = db.StringField()
     fileExtension = db.StringField()
     fileName = db.StringField(required=True)
     fileDescription = db.StringField()
     visibility = db.StringField(default='private')
     timestamp = db.DateTimeField(required=True, default=datetime.datetime.utcnow)
+
+    def __init__(self, *args, **kwargs):
+        db.Document.__init__(self, *args, **kwargs)
+
+        self.creator = get_jwt_identity()['_id']['$oid']
+
+    def save(self, *args, **kwargs):
+        super(Storage, self).save(*args, **kwargs)
+
+        if 'file' in kwargs:
+            self.save(kwargs['file'])
 
     def save_file(self, file):
         self.fileExtension = get_file_extension(file.filename)

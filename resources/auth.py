@@ -1,7 +1,7 @@
 from functools import wraps
 
-from flask import Response, request, jsonify
-from flask_jwt_extended import create_access_token, get_raw_jwt, verify_jwt_in_request, get_jwt_claims
+from flask import request
+from flask_jwt_extended import create_access_token
 from flask_jwt_extended.exceptions import NoAuthorizationError
 from flask_jwt_extended.view_decorators import _decode_jwt_from_request, jwt_required
 
@@ -50,8 +50,6 @@ class SignupApi(Resource):
     def post(self):
         body = request.get_json()
         user = User(**body)
-        user.generate_keys()
-        user.hash_password()
         user.save()
         user.add_ca()
         return {'id': str(user.id)}, 200

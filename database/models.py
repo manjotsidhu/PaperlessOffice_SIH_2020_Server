@@ -87,10 +87,9 @@ class Storage(db.Document):
         self.creator = get_jwt_identity()['_id']['$oid']
 
     def save(self, *args, **kwargs):
-        super(Storage, self).save(*args, **kwargs)
+        self.save_file(kwargs['file'])
 
-        if 'file' in kwargs:
-            self.save(kwargs['file'])
+        super(Storage, self).save(*args, **kwargs)
 
     def save_file(self, file):
         self.fileExtension = get_file_extension(file.filename)

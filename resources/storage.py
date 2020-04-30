@@ -1,9 +1,9 @@
-from flask import request, Response
+from flask import request, Response, send_from_directory
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from flask_restful import Resource
 from mongoengine import Q
 from database.models import Storage
-from resources.utils import allowed_file
+from resources.utils import allowed_file, UPLOAD_FOLDER
 
 
 class StorageApi(Resource):
@@ -33,6 +33,11 @@ class UserStorageApi(Resource):
 
     @jwt_required
     def get(self, doc_id):
+
+        if 'download' in request.args:
+            q = Storage.objects((Q(creator=get_jwt_identity()['_id']['$oid']) & Q(id=doc_id)) | Q(visibility='public'))
+            return send_from_directory(directory=UPLOAD_FOLDER, filename=q[0].file)
+
         return Response(Storage.objects((Q(creator=get_jwt_identity()['_id']['$oid']) & Q(id=doc_id)) |
                         Q(visibility='public')).get().to_json(), mimetype="application/json", status=200)
 

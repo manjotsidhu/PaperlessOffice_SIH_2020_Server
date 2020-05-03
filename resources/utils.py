@@ -1,4 +1,4 @@
-ALLOWED_EXTENSIONS = set(['txt', 'pdf', 'png', 'jpg', 'jpeg'])
+ALLOWED_EXTENSIONS = set(['pdf', 'png', 'jpg', 'jpeg'])
 UPLOAD_FOLDER = 'uploads'
 
 

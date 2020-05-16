@@ -26,6 +26,11 @@ class StorageApi(Resource):
     @jwt_required
     def get(self):
         q = Storage.objects(Q(creator=get_jwt_identity()['_id']['$oid']) | Q(visibility='public'))
+
+        if 'limit' in request.args:
+            limit = int(request.args['limit'])
+            return Response(q[:limit].to_json(), mimetype="application/json", status=200)
+
         return Response(q.to_json(), mimetype="application/json", status=200)
 
 

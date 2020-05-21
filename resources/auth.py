@@ -1,13 +1,15 @@
 from functools import wraps
 
 from flask import request
-from flask_jwt_extended import create_access_token
+from flask_jwt_extended import create_access_token, get_raw_jwt
 from flask_jwt_extended.exceptions import NoAuthorizationError
 from flask_jwt_extended.view_decorators import _decode_jwt_from_request, jwt_required
 
 from database.models import User
 from flask_restful import Resource
 import datetime
+
+from resources import utils
 
 
 def admin_required(view_function):
@@ -67,3 +69,11 @@ class LoginApi(Resource):
         access_token = create_access_token(identity=user, expires_delta=expires)
 
         return {'token': access_token}, 200
+
+
+class LogoutApi(Resource):
+    @jwt_required
+    def delete(self):
+        jti = get_raw_jwt()['jti']
+        utils.blacklist.add(jti)
+        return {"msg": "Successfully logged out"}, 200

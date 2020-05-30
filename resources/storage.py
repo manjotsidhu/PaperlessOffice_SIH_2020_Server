@@ -38,13 +38,13 @@ class UserStorageApi(Resource):
 
     @jwt_required
     def get(self, doc_id):
-
         if 'download' in request.args:
-            q = Storage.objects((Q(creator=get_jwt_identity()['_id']['$oid']) & Q(id=doc_id)) | Q(visibility='public'))
+            q = Storage.objects(Q(id=doc_id) & (Q(creator=get_jwt_identity()['_id']['$oid']) | Q(visibility='public')))
             return send_from_directory(directory=UPLOAD_FOLDER, filename=q[0].file)
 
-        return Response(Storage.objects((Q(creator=get_jwt_identity()['_id']['$oid']) & Q(id=doc_id)) |
-                        Q(visibility='public')).get().to_json(), mimetype="application/json", status=200)
+        return Response(Storage.objects(Q(id=doc_id) & (Q(creator=get_jwt_identity()['_id']['$oid']) |
+                                                        Q(visibility='public'))).get().to_json(),
+                        mimetype="application/json", status=200)
 
     @jwt_required
     def update(self, doc_id):

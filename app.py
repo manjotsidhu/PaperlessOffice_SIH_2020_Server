@@ -28,11 +28,13 @@ api = Api(app)
 api.representations = {'application/json': utils.output_json}
 jwt = JWTManager(app)
 
+
 # JWT Blacklist Loader
 @jwt.token_in_blacklist_loader
 def check_if_token_in_blacklist(decrypted_token):
     jti = decrypted_token['jti']
     return jti in utils.blacklist
+
 
 # Check if MongoDb Host Url present in environment
 # Heroku Web App has this set in environment

@@ -96,3 +96,23 @@ class Storage(db.Document):
         self.file = get_jwt_identity()['_id']['$oid'] + "_" + time.strftime("%Y%m%d-%H%M%S") + "." + self.fileExtension
 
         file.save(os.path.join(UPLOAD_FOLDER, self.file))
+
+
+class Stage(db.Document):
+    authId = db.StringField(required=True)
+    authName = db.StringField(required=True)
+    name = db.StringField(required=True)
+
+
+class Workflow(db.Document):
+    name = db.StringField(required=True)
+    creatorId = db.StringField(required=True)
+    timestamp = db.DateTimeField(required=True, default=datetime.datetime.utcnow)
+    stage = db.IntField(default=0)
+    totalStages = db.IntField(required=True)
+    stages = db.ListField(ReferenceField(Stage))
+
+    def __init__(self, *args, **kwargs):
+        db.Document.__init__(self, *args, **kwargs)
+
+        self.creatorId = get_jwt_identity()['_id']['$oid']

@@ -1,11 +1,12 @@
 import datetime
+import json
 import os
 import time
 
 from ellipticcurve.privateKey import PrivateKey
 from ellipticcurve.publicKey import PublicKey
 from flask_jwt_extended import get_jwt_identity
-from mongoengine import ReferenceField
+from mongoengine import ReferenceField, QuerySet
 
 from resources.utils import get_file_extension, UPLOAD_FOLDER
 from .db import db
@@ -107,11 +108,76 @@ class Stage(db.Document):
 class Workflow(db.Document):
     name = db.StringField(required=True)
     creatorId = db.StringField(required=True)
+    creatorName = db.StringField(required=True)
     timestamp = db.DateTimeField(required=True, default=datetime.datetime.utcnow)
     totalStages = db.IntField(required=True)
-    stages = db.ListField(ReferenceField('Stage'))
+    stages = db.ListField()
 
     def __init__(self, *args, **kwargs):
         db.Document.__init__(self, *args, **kwargs)
 
-        self.creatorId = get_jwt_identity()['_id']['$oid']
+        if self.creatorId is None:
+            self.creatorId = get_jwt_identity()['_id']['$oid']
+
+        if self.creatorName is None:
+            user = User.objects.get(id=self.creatorId)
+            self.creatorName = user.first_name + " " + user.last_name
+
+
+class ApplicationTemplate(db.Document):
+    name = db.StringField(required=True)
+    creatorId = db.StringField(required=True)
+    creatorName = db.StringField(required=True)
+    workflowId = db.StringField(required=True)
+    formId = db.StringField(required=True)
+    stages = db.IntField(required=True)
+    timestamp = db.DateTimeField(required=True, default=datetime.datetime.utcnow)
+
+    def __init__(self, *args, **kwargs):
+        db.Document.__init__(self, *args, **kwargs)
+
+        self.stages = Workflow.objects.get(id=self.workflowId).totalStages
+
+        if self.creatorId is None:
+            self.creatorId = get_jwt_identity()['_id']['$oid']
+
+        if self.creatorName is None:
+            user = User.objects.get(id=self.creatorId)
+            self.creatorName = user.first_name + " " + user.last_name
+
+
+class Application(db.Document):
+    name = db.StringField(required=True)
+    creatorId = db.StringField(required=True)
+    templateId = db.StringField(required=True)
+    creatorName = db.StringField(required=True)
+    workflowId = db.StringField(required=True)
+    assignedId = db.StringField(required=True)
+    formId = db.StringField(required=True)
+    status = db.IntField(required=True, default=0)
+    stage = db.IntField(required=True, default=0)
+    stages = db.IntField(required=True)
+    timestamp = db.DateTimeField(required=True, default=datetime.datetime.utcnow)
+
+    def __init__(self, *args, **kwargs):
+        db.Document.__init__(self, *args, **kwargs)
+
+        template = ApplicationTemplate.objects.get(id=self.templateId)
+        self.workflowId = template.workflowId
+        workflow = Workflow.objects.get(id=self.workflowId)
+        self.formId = template.formId
+
+        self.stages = Workflow.objects.get(id=self.workflowId).totalStages
+
+        if self.name is None:
+            self.name = template.name
+
+        if self.creatorId is None:
+            self.creatorId = get_jwt_identity()['_id']['$oid']
+
+        if self.assignedId is None:
+            self.assignedId = workflow.stages[self.stage]['authId']
+
+        if self.creatorName is None:
+            user = User.objects.get(id=self.creatorId)
+            self.creatorName = user.first_name + " " + user.last_name

@@ -13,10 +13,10 @@ class WorkflowApi(Resource):
         workflow = Workflow(**body).save()
         return {'id': str(workflow.id)}, 200
 
-    @jwt_required
-    def get(self):
-        workflows = Workflow.objects().to_json()
-        return Response(workflows, mimetype="application/json", status=200)
+    # @jwt_required
+    # def get(self):
+    #    workflows = Workflow.objects().to_json()
+    #    return Response(workflows, mimetype="application/json", status=200)
 
 
 class WorkFlowByIdApi(Resource):

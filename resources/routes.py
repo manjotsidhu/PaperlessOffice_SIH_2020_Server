@@ -1,4 +1,6 @@
-from resources.form import SaveFormApi, GetFormApi
+from resources.application import ApplicationsApi, ApplicationApi, SigningApi, ApplicationsTemplateApi, \
+    ApplicationTemplateApi
+from resources.form import FormApi, GetFormApi
 from resources.index import IndexApi
 from resources.storage import StorageApi, UserStorageApi
 from resources.workflow import WorkflowApi, WorkFlowByIdApi
@@ -13,9 +15,14 @@ def initialize_routes(api):
     api.add_resource(SignupApi, '/auth/signup')
     api.add_resource(LoginApi, '/auth/login')
     api.add_resource(LogoutApi, '/auth/logout')
-    api.add_resource(SaveFormApi, '/form')
+    api.add_resource(FormApi, '/form')
     api.add_resource(GetFormApi, '/form/<string:id>')
     api.add_resource(WorkflowApi, '/workflow')
     api.add_resource(WorkFlowByIdApi, '/workflow/<string:id>')
+    api.add_resource(ApplicationsApi, '/applications')
+    api.add_resource(ApplicationsTemplateApi, '/applications/templates')
+    api.add_resource(ApplicationTemplateApi, '/applications/templates/<string:id>')
+    api.add_resource(ApplicationApi, '/applications/<string:id>')
+    #api.add_resource(SigningApi, '/applications/<string:id>/<string:action>')
     api.add_resource(StorageApi, '/storage')
     api.add_resource(UserStorageApi, '/storage/<string:doc_id>')

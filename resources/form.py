@@ -6,7 +6,7 @@ from flask import Response, request
 from database.models import Form
 
 
-class SaveFormApi(Resource):
+class FormApi(Resource):
     @jwt_required
     def post(self):
         body = request.get_json()

@@ -41,12 +41,31 @@ class ApplicationsApi(Resource):
 
     @jwt_required
     def get(self):
+        filter_q = None
+
+        if 'filter' in request.args:
+            if request.args['filter'] == 'signed':
+                filter_q = Q(status=1)
+            elif request.args['filter'] == 'rejected':
+                filter_q = Q(status=-1)
+            elif request.args['filter'] == 'pending':
+                filter_q = Q(status=0)
+
         if get_jwt_identity()['role'] == 'authority':
-            q = Application.objects(Q(assignedId=get_jwt_identity()['_id']['$oid']) |
-                                    Q(creatorId=get_jwt_identity()['_id']['$oid']))
+            if filter_q is not None:
+                q = Application.objects(filter_q & (Q(assignedId=get_jwt_identity()['_id']['$oid']) |
+                                                    Q(creatorId=get_jwt_identity()['_id']['$oid'])))
+            else:
+                q = Application.objects(Q(assignedId=get_jwt_identity()['_id']['$oid']) |
+                                        Q(creatorId=get_jwt_identity()['_id']['$oid']))
+
             return Response(q.to_json(), mimetype="application/json", status=200)
         else:
-            q = Application.objects(Q(creatorId=get_jwt_identity()['_id']['$oid']))
+            if filter_q is not None:
+                q = Application.objects(filter_q & (Q(creatorId=get_jwt_identity()['_id']['$oid'])))
+            else:
+                q = Application.objects(Q(creatorId=get_jwt_identity()['_id']['$oid']))
+
             return Response(q.to_json(), mimetype="application/json", status=200)
 
 
@@ -55,12 +74,14 @@ class ApplicationApi(Resource):
     @jwt_required
     def get(self, id):
         return Response(Application.objects(Q(id=id) & (Q(creatorId=get_jwt_identity()['_id']['$oid']) |
-                                                        Q(assignedId=get_jwt_identity()['_id']['$oid']))).get().to_json(),
+                                                        Q(assignedId=get_jwt_identity()['_id'][
+                                                            '$oid']))).get().to_json(),
                         mimetype="application/json", status=200)
 
     @jwt_required
     def delete(self, id):
-        print('TODO: Delete Application')
+        Application.objects(Q(id=id) & Q(creatorId=get_jwt_identity()['_id']['$oid'])).delete()
+        return '', 200
 
 
 class SigningApi(Resource):

@@ -154,6 +154,7 @@ class Application(db.Document):
     workflowId = db.StringField(required=True)
     assignedId = db.StringField(required=True)
     formId = db.StringField(required=True)
+    form = db.ListField(required=True)
     status = db.IntField(required=True, default=0)
     stage = db.IntField(required=True, default=0)
     stages = db.IntField(required=True)

@@ -23,6 +23,6 @@ def initialize_routes(api):
     api.add_resource(ApplicationsTemplateApi, '/applications/templates')
     api.add_resource(ApplicationTemplateApi, '/applications/templates/<string:id>')
     api.add_resource(ApplicationApi, '/applications/<string:id>')
-    #api.add_resource(SigningApi, '/applications/<string:id>/<string:action>')
+    api.add_resource(SigningApi, '/applications/<string:id>/<string:action>')
     api.add_resource(StorageApi, '/storage')
     api.add_resource(UserStorageApi, '/storage/<string:doc_id>')

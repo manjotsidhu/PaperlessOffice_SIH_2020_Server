@@ -148,27 +148,40 @@ class ApplicationTemplate(db.Document):
 
 class Application(db.Document):
     name = db.StringField(required=True)
+    description = db.StringField(required=True)
+    message = db.StringField(required=True)
     creatorId = db.StringField(required=True)
     templateId = db.StringField(required=True)
     creatorName = db.StringField(required=True)
     workflowId = db.StringField(required=True)
     assignedId = db.StringField(required=True)
     formId = db.StringField(required=True)
-    form = db.ListField(required=True)
+    form = db.DictField(required=True)
     status = db.IntField(required=True, default=0)
     stage = db.IntField(required=True, default=0)
     stages = db.IntField(required=True)
     timestamp = db.DateTimeField(required=True, default=datetime.datetime.utcnow)
+    hash = db.DictField(required=True)
+    signatures = db.ListField(db.StringField())
 
     def __init__(self, *args, **kwargs):
         db.Document.__init__(self, *args, **kwargs)
 
         template = ApplicationTemplate.objects.get(id=self.templateId)
-        self.workflowId = template.workflowId
-        workflow = Workflow.objects.get(id=self.workflowId)
-        self.formId = template.formId
+        workflow = Workflow.objects.get(id=template.workflowId)
 
-        self.stages = Workflow.objects.get(id=self.workflowId).totalStages
+        if self.description is None:
+            self.description = ''
+
+        if self.message is None:
+            self.message = ''
+
+        if self.workflowId is None or self.formId is None:
+            self.workflowId = template.workflowId
+            self.formId = template.formId
+
+        if self.stages is None:
+            self.stages = Workflow.objects.get(id=self.workflowId).totalStages
 
         if self.name is None:
             self.name = template.name
@@ -182,3 +195,23 @@ class Application(db.Document):
         if self.creatorName is None:
             user = User.objects.get(id=self.creatorId)
             self.creatorName = user.first_name + " " + user.last_name
+
+        if not self.hash:
+            self.hash = self.to_hash()
+
+        if not self.signatures:
+            signatures = [''] * self.stages
+            for i in range(self.stages):
+                signatures[i] = ''
+
+            self.signatures = signatures
+
+    # Calculate Hash based on creatorId, templateId, workflowId, formId, form
+    def to_hash(self):
+        return {
+            "creatorId": self.creatorId,
+            "templateId": self.templateId,
+            "workflowId": self.workflowId,
+            "formId": self.formId,
+            "form": self.form
+        }

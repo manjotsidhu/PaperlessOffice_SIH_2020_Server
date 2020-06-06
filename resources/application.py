@@ -1,3 +1,7 @@
+import json
+
+from ellipticcurve.ecdsa import Ecdsa
+from ellipticcurve.privateKey import PrivateKey
 from flask import request, Response
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from flask_restful import Resource
@@ -89,4 +93,46 @@ class SigningApi(Resource):
     @jwt_required
     @authority_required
     def post(self, id, action):
-        print('TODO: SIGNING Process')
+        body = request.get_json()
+
+        if action == 'sign':
+            return self.sign(id)
+        elif action == 'reject':
+            if body and 'message' in body:
+                return self.reject(id, body['message'])
+            else:
+                return self.reject(id)
+
+    def sign(self, id):
+        application = Application.objects(Q(id=id) & Q(assignedId=get_jwt_identity()['_id']['$oid'])).get()
+
+        if application.to_hash() != application.hash:
+            return 'Data Tempered', 403
+
+        current_stage = int(application.stage)
+        private_key = User.objects(Q(id=get_jwt_identity()['_id']['$oid'])).get().private_key
+
+        signatures = application.signatures
+        signatures[current_stage] = Ecdsa.sign(json.dumps(application.to_hash()),
+                                               PrivateKey.fromPem(private_key)).toBase64()
+
+        application.update(signatures=signatures)
+
+        if application.stage == application.stages - 1:
+            application.update(status=1)
+        else:
+            workflow = Workflow.objects(id=application.workflowId).get()
+            new_auth_id = workflow.stages[0]['authId']
+            application.update(assignedId=new_auth_id)
+            application.update(stage=current_stage + 1)
+
+        return signatures[current_stage], 200
+
+    def reject(self, id, message = None):
+        application = Application.objects(Q(id=id) & Q(assignedId=get_jwt_identity()['_id']['$oid'])).get()
+
+        if message is not None:
+            application.update(message=message)
+
+        application.update(status=-1)
+        return 'Success', 200

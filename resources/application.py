@@ -107,7 +107,7 @@ class SigningApi(Resource):
         application = Application.objects(Q(id=id) & Q(assignedId=get_jwt_identity()['_id']['$oid'])).get()
 
         if application.to_hash() != application.hash:
-            return 'Data Tempered', 403
+            return 'Data Tampered', 403
 
         current_stage = int(application.stage)
         private_key = User.objects(Q(id=get_jwt_identity()['_id']['$oid'])).get().private_key
@@ -122,8 +122,10 @@ class SigningApi(Resource):
             application.update(status=1)
         else:
             workflow = Workflow.objects(id=application.workflowId).get()
-            new_auth_id = workflow.stages[0]['authId']
+            new_auth_id = workflow.stages[current_stage + 1]['authId']
+            new_auth_name = workflow.stages[current_stage + 1]['authName']
             application.update(assignedId=new_auth_id)
+            application.update(assignedName=new_auth_name)
             application.update(stage=current_stage + 1)
 
         return signatures[current_stage], 200

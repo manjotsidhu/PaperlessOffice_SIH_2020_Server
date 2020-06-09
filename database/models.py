@@ -155,6 +155,7 @@ class Application(db.Document):
     creatorName = db.StringField(required=True)
     workflowId = db.StringField(required=True)
     assignedId = db.StringField(required=True)
+    assignedName = db.StringField(required=True)
     formId = db.StringField(required=True)
     form = db.DictField(required=True)
     status = db.IntField(required=True, default=0)
@@ -191,6 +192,7 @@ class Application(db.Document):
 
         if self.assignedId is None:
             self.assignedId = workflow.stages[self.stage]['authId']
+            self.assignedName = workflow.stages[self.stage]['authName']
 
         if self.creatorName is None:
             user = User.objects.get(id=self.creatorId)

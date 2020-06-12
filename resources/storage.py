@@ -53,5 +53,5 @@ class UserStorageApi(Resource):
 
     @jwt_required
     def delete(self, doc_id):
-        # TODO
-        return
+        Storage.objects(Q(id=doc_id) & Q(creator=get_jwt_identity()['_id']['$oid'])).get().delete()
+        return '', 200

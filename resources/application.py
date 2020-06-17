@@ -46,6 +46,7 @@ class ApplicationsApi(Resource):
     @jwt_required
     def get(self):
         filter_q = None
+        limit_q = None
 
         if 'filter' in request.args:
             if request.args['filter'] == 'signed':
@@ -55,6 +56,9 @@ class ApplicationsApi(Resource):
             elif request.args['filter'] == 'pending':
                 filter_q = Q(status=0)
 
+        if 'limit' in request.args:
+            limit_q = int(request.args['limit'])
+
         if get_jwt_identity()['role'] == 'authority':
             if filter_q is not None:
                 q = Application.objects(filter_q & (Q(assignedId=get_jwt_identity()['_id']['$oid']) |
@@ -63,13 +67,15 @@ class ApplicationsApi(Resource):
                 q = Application.objects(Q(assignedId=get_jwt_identity()['_id']['$oid']) |
                                         Q(creatorId=get_jwt_identity()['_id']['$oid']))
 
-            return Response(q.to_json(), mimetype="application/json", status=200)
         else:
             if filter_q is not None:
                 q = Application.objects(filter_q & (Q(creatorId=get_jwt_identity()['_id']['$oid'])))
             else:
                 q = Application.objects(Q(creatorId=get_jwt_identity()['_id']['$oid']))
 
+        if limit_q is not None:
+            return Response(q[:limit_q].to_json(), mimetype="application/json", status=200)
+        else:
             return Response(q.to_json(), mimetype="application/json", status=200)
 
 

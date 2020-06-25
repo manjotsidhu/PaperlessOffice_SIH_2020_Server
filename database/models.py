@@ -1,16 +1,17 @@
 import datetime
+import hashlib
 import json
 import os
 import time
 
 from ellipticcurve.privateKey import PrivateKey
 from ellipticcurve.publicKey import PublicKey
+from flask_bcrypt import generate_password_hash, check_password_hash
 from flask_jwt_extended import get_jwt_identity
-from mongoengine import ReferenceField, QuerySet
+from mongoengine import ReferenceField
 
 from resources.utils import get_file_extension, UPLOAD_FOLDER
 from .db import db
-from flask_bcrypt import generate_password_hash, check_password_hash
 
 
 class User(db.Document):
@@ -162,7 +163,7 @@ class Application(db.Document):
     stage = db.IntField(required=True, default=0)
     stages = db.IntField(required=True)
     timestamp = db.DateTimeField(required=True, default=datetime.datetime.utcnow)
-    hash = db.DictField(required=True)
+    hash = db.StringField(required=True)
     signatures = db.ListField(db.StringField())
 
     def __init__(self, *args, **kwargs):
@@ -210,10 +211,10 @@ class Application(db.Document):
 
     # Calculate Hash based on creatorId, templateId, workflowId, formId, form
     def to_hash(self):
-        return {
+        return hashlib.md5(json.dumps({
             "creatorId": self.creatorId,
             "templateId": self.templateId,
             "workflowId": self.workflowId,
             "formId": self.formId,
             "form": self.form
-        }
+        }, sort_keys=True).encode("utf-8")).hexdigest()

@@ -2,6 +2,7 @@ import json
 
 from flask import Response, request
 from database.models import User, Ca
+from mongoengine import Q
 from flask_restful import Resource
 from flask_jwt_extended import jwt_required, get_jwt_identity
 
@@ -9,9 +10,10 @@ from resources.auth import admin_required
 
 
 class UsersApi(Resource):
-    @admin_required
+    @jwt_required
     def get(self):
-        u = User.objects().to_json()
+        u = User.objects(Q(role=get_jwt_identity()['role']))\
+                .exclude('private_key', 'public_key', 'password').get(id__ne=get_jwt_identity()['_id']['$oid']).to_json()
         return Response(u, mimetype="application/json", status=200)
 
     @admin_required

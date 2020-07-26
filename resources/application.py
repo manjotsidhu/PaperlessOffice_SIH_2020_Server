@@ -22,7 +22,7 @@ class ApplicationsTemplateApi(Resource):
 
     @jwt_required
     def get(self):
-        application_templates = ApplicationTemplate.objects().to_json()
+        application_templates = ApplicationTemplate.objects().order_by('-timestamp').to_json()
         return Response(application_templates, mimetype="application/json", status=200)
 
 
@@ -30,7 +30,7 @@ class ApplicationTemplateApi(Resource):
 
     @jwt_required
     def get(self, id):
-        return Response(ApplicationTemplate.objects.get(id=id).to_json(), mimetype="application/json", status=200)
+        return Response(ApplicationTemplate.objects.order_by('-timestamp').get(id=id).to_json(), mimetype="application/json", status=200)
 
     # TODO: Bringup DELETE Application Template API
 
@@ -73,6 +73,7 @@ class ApplicationsApi(Resource):
             else:
                 q = Application.objects(Q(creatorId=get_jwt_identity()['_id']['$oid']))
 
+        q = q.order_by('-timestamp')
         if limit_q is not None:
             return Response(q[:limit_q].to_json(), mimetype="application/json", status=200)
         else:

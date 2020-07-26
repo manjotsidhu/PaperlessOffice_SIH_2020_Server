@@ -25,7 +25,7 @@ class StorageApi(Resource):
 
     @jwt_required
     def get(self):
-        q = Storage.objects(Q(creator=get_jwt_identity()['_id']['$oid']) | Q(visibility='public'))
+        q = Storage.objects(Q(creator=get_jwt_identity()['_id']['$oid']) | Q(visibility='public')).order_by('-timestamp')
 
         if 'limit' in request.args:
             limit = int(request.args['limit'])

@@ -1,5 +1,7 @@
 import os
 
+import services.SMTP
+
 from flask import Flask
 from database.db import initialize_db
 from flask_bcrypt import Bcrypt

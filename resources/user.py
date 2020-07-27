@@ -1,7 +1,7 @@
 import json
 
 from flask import Response, request
-from database.models import User, Ca
+from database.models import User
 from mongoengine import Q
 from flask_restful import Resource
 from flask_jwt_extended import jwt_required, get_jwt_identity
@@ -31,7 +31,5 @@ class UserApi(Resource):
 
     @jwt_required
     def delete(self):
-        # TODO: FIX THIS
         User.objects.get(id=get_jwt_identity()).delete()
-        Ca.objects.get(user_id=get_jwt_identity()).delete()
         return '', 200

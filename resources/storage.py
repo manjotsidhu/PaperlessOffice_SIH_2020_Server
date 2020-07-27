@@ -3,7 +3,8 @@ from flask_jwt_extended import jwt_required, get_jwt_identity
 from flask_restful import Resource
 from mongoengine import Q
 from database.models import Storage
-from resources.utils import allowed_file, UPLOAD_FOLDER
+from resources.utils import allowed_file, UPLOAD_FOLDER, get_user_email, get_user_name
+from services.SMTP import send_email_async
 
 
 class StorageApi(Resource):
@@ -19,6 +20,9 @@ class StorageApi(Resource):
             body = request.form.to_dict()
             form = Storage(**body)
             form.save(file=file)
+            send_email_async(get_user_email(), 'notification', get_user_name(),
+                             notif=f"Your document {form.fileName} has been successfully uploaded and ready to "
+                                   f"be used.Please check E-Daftar portal for further updates.")
             return {'id': str(form.id)}, 200
         else:
             return {'Error: Invalid Document'}, 405
@@ -53,5 +57,10 @@ class UserStorageApi(Resource):
 
     @jwt_required
     def delete(self, doc_id):
-        Storage.objects(Q(id=doc_id) & Q(creator=get_jwt_identity()['_id']['$oid'])).get().delete()
-        return '', 200
+
+        s = Storage.objects(Q(id=doc_id) & Q(creator=get_jwt_identity()['_id']['$oid'])).get()
+        file_name = s.fileName
+        s.delete()
+        send_email_async(get_user_email(), 'notification', get_user_name(),
+                         notif=f"Your document {file_name} has been deleted successfully.")
+        return 'Success', 200

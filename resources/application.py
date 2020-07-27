@@ -9,6 +9,8 @@ from mongoengine import Q
 
 from database.models import Application, ApplicationTemplate, Workflow, User
 from resources.auth import authority_required
+from resources.utils import get_user_email, get_user_name
+from services.SMTP import send_email_async
 
 
 class ApplicationsTemplateApi(Resource):
@@ -18,6 +20,10 @@ class ApplicationsTemplateApi(Resource):
     def post(self):
         body = request.get_json()
         application_template = ApplicationTemplate(**body).save()
+        send_email_async(get_user_email(), 'notification', get_user_name(),
+                         notif=f"Your Application Template {application_template.name} has been successfully uploaded "
+                               f"and ready to be used by the users.Please check E-Daftar portal for more "
+                               f"updates.")
         return {'id': str(application_template.id)}, 200
 
     @jwt_required
@@ -41,6 +47,10 @@ class ApplicationsApi(Resource):
     def post(self):
         body = request.get_json()
         application = Application(**body).save()
+        send_email_async(get_user_email(), 'notification', get_user_name(),
+                         notif=f"Your Application has been successfully received for {application.name} and"
+                               f"awaiting signatures from the authorities, Please check E-Daftar portal for more "
+                               f"updates.")
         return {'id': str(application.id)}, 200
 
     @jwt_required
@@ -135,6 +145,15 @@ class SigningApi(Resource):
             application.update(assignedName=new_auth_name)
             application.update(stage=current_stage + 1)
 
+        user = User.objects(Q(id=application.creatorId)).get()
+        send_email_async(get_user_email(), 'notification', get_user_name(),
+                         notif=f"You have successfully signed {application.name} created by {user.first_name} with "
+                               f"your digital signatures")
+
+        send_email_async(user.email, 'notification', user.first_name,
+                         notif=f"{get_user_name()} has successfully signed your {application.name}. Please check "
+                               f"E-Daftar portal for more updates.")
+
         return signatures[current_stage], 200
 
     def reject(self, id, message = None):
@@ -144,4 +163,13 @@ class SigningApi(Resource):
             application.update(message=message)
 
         application.update(status=-1)
+
+        user = User.objects(Q(id=application.creatorId)).get()
+        send_email_async(get_user_email(), 'notification', get_user_name(),
+                         notif=f"You have successfully rejected {application.name} created by {user.first_name}.")
+
+        send_email_async(get_user_email(), 'notification', get_user_name(),
+                         notif=f"{get_user_name()} has unfortunately rejected your application due to the following "
+                               f"reason: '{message}'. Please check E-Daftar portal for more updates.")
+
         return 'Success', 200

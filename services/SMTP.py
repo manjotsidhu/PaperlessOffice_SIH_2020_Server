@@ -5,6 +5,7 @@ from socket import gaierror
 from email.mime.text import MIMEText
 from email.mime.image import MIMEImage
 from email.mime.multipart import MIMEMultipart
+from threading import Thread
 
 from services.email_templates import load_signup_template, load_notification_template
 
@@ -19,6 +20,11 @@ fp.close()
 
 # Create a secure SSL context
 context = ssl.create_default_context()
+
+
+def send_email_async(receiver, type, username=None, notif=None):
+    thread = Thread(target=send_email, args=(receiver, type, username, notif))
+    thread.start()
 
 
 def send_email(receiver, type, username=None, notif=None):

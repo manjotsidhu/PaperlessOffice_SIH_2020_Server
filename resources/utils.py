@@ -1,10 +1,19 @@
 from flask import make_response
 from bson.json_util import dumps
+from flask_jwt_extended import get_jwt_identity
 
 ALLOWED_EXTENSIONS = set(['pdf', 'png', 'jpg', 'jpeg'])
 UPLOAD_FOLDER = 'uploads'
 
 blacklist = set()
+
+
+def get_user_email():
+    return get_jwt_identity()['email']
+
+
+def get_user_name():
+    return get_jwt_identity()['first_name']
 
 
 def output_json(obj, code, headers=None):

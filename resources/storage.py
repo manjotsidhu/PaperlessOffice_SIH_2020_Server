@@ -4,7 +4,7 @@ from flask_restful import Resource
 from mongoengine import Q
 from database.models import Storage
 from resources.utils import allowed_file, UPLOAD_FOLDER, get_user_email, get_user_name
-from services.SMTP import send_email_async
+from services.smtp.smtp import send_email_async
 
 
 class StorageApi(Resource):

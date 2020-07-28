@@ -10,7 +10,7 @@ from mongoengine import Q
 from database.models import Application, ApplicationTemplate, Workflow, User
 from resources.auth import authority_required
 from resources.utils import get_user_email, get_user_name
-from services.SMTP import send_email_async
+from services.smtp.smtp import send_email_async
 
 
 class ApplicationsTemplateApi(Resource):

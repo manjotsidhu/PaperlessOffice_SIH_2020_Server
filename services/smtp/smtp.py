@@ -7,7 +7,7 @@ from email.mime.image import MIMEImage
 from email.mime.multipart import MIMEMultipart
 from threading import Thread
 
-from services.email_templates import load_signup_template, load_notification_template
+from services.smtp.email_templates import load_signup_template, load_notification_template
 
 smtp_pass = os.environ.get('SMTP_PASS')
 sender = "Daftar Notifications <daftar.sih2020@gmail.com>"
@@ -48,7 +48,7 @@ def send_email(receiver, type, username=None, notif=None):
     except smtplib.SMTPServerDisconnected:
         print('Failed to connect to the server. Wrong user/password?')
     except smtplib.SMTPException as e:
-        print('SMTP error occurred: ' + str(e))
+        print('smtp error occurred: ' + str(e))
 
 
 def make_message(receiver, type, notif, username=None):

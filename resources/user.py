@@ -1,20 +1,26 @@
 import json
 
-from flask import Response, request
+from flask import Response, request, send_from_directory
 from database.models import User
 from mongoengine import Q
 from flask_restful import Resource
 from flask_jwt_extended import jwt_required, get_jwt_identity
 
 from resources.auth import admin_required
+from resources.utils import UPLOAD_FOLDER, get_user_id
+from services.export2excel.export2excel import export_to_excel
 
 
 class UsersApi(Resource):
     @jwt_required
     def get(self):
         u = User.objects(Q(role=get_jwt_identity()['role']))\
-                .exclude('private_key', 'public_key', 'password').to_json()
-        return Response(u, mimetype="application/json", status=200)
+                .exclude('private_key', 'public_key', 'password')
+
+        if 'excel' in request.args:
+            return send_from_directory(directory=UPLOAD_FOLDER, filename=export_to_excel(u, get_user_id()))
+
+        return Response(u.to_json(), mimetype="application/json", status=200)
 
     @admin_required
     def post(self):

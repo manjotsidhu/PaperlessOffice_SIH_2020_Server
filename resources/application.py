@@ -2,14 +2,15 @@ import json
 
 from ellipticcurve.ecdsa import Ecdsa
 from ellipticcurve.privateKey import PrivateKey
-from flask import request, Response
+from flask import request, Response, send_from_directory
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from flask_restful import Resource
 from mongoengine import Q
 
 from database.models import Application, ApplicationTemplate, Workflow, User
 from resources.auth import authority_required
-from resources.utils import get_user_email, get_user_name
+from resources.utils import get_user_email, get_user_name, UPLOAD_FOLDER, get_user_id
+from services.export2excel.export2excel import export_to_excel
 from services.smtp.smtp import send_email_async
 
 
@@ -28,8 +29,12 @@ class ApplicationsTemplateApi(Resource):
 
     @jwt_required
     def get(self):
-        application_templates = ApplicationTemplate.objects().order_by('-timestamp').to_json()
-        return Response(application_templates, mimetype="application/json", status=200)
+        application_templates = ApplicationTemplate.objects().order_by('-timestamp')
+
+        if 'excel' in request.args:
+            return send_from_directory(directory=UPLOAD_FOLDER, filename=export_to_excel(application_templates, get_user_id()))
+
+        return Response(application_templates.to_json(), mimetype="application/json", status=200)
 
 
 class ApplicationTemplateApi(Resource):
@@ -84,6 +89,10 @@ class ApplicationsApi(Resource):
                 q = Application.objects(Q(creatorId=get_jwt_identity()['_id']['$oid']))
 
         q = q.order_by('-timestamp')
+
+        if 'excel' in request.args:
+            return send_from_directory(directory=UPLOAD_FOLDER, filename=export_to_excel(q, get_user_id()))
+
         if limit_q is not None:
             return Response(q[:limit_q].to_json(), mimetype="application/json", status=200)
         else:

@@ -3,7 +3,8 @@ from flask_jwt_extended import jwt_required, get_jwt_identity
 from flask_restful import Resource
 from mongoengine import Q
 from database.models import Storage
-from resources.utils import allowed_file, UPLOAD_FOLDER, get_user_email, get_user_name
+from resources.utils import allowed_file, UPLOAD_FOLDER, get_user_email, get_user_name, get_user_id
+from services.export2excel.export2excel import export_to_excel
 from services.smtp.smtp import send_email_async
 
 
@@ -34,6 +35,8 @@ class StorageApi(Resource):
         if 'limit' in request.args:
             limit = int(request.args['limit'])
             return Response(q[:limit].to_json(), mimetype="application/json", status=200)
+        elif 'excel' in request.args:
+            return send_from_directory(directory=UPLOAD_FOLDER, filename=export_to_excel(q, get_user_id()))
 
         return Response(q.to_json(), mimetype="application/json", status=200)
 

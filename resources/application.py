@@ -53,9 +53,14 @@ class ApplicationsApi(Resource):
         body = request.get_json()
         application = Application(**body).save()
         send_email_async(get_user_email(), 'notification', get_user_name(),
-                         notif=f"Your Application has been successfully received for {application.name} and"
+                         notif=f"Your Application has been successfully received for {application.name} and "
                                f"awaiting signatures from the authorities, Please check E-Daftar portal for more "
                                f"updates.")
+
+        auth = User.objects.get(id=application.assignedId)
+        send_email_async(auth.email, 'notification', auth.first_name,
+                         notif=f"User {get_user_name()} has applied for {application.name} and is awaiting for your "
+                               f"signatures, Please review it from the E-Daftar portal.")
         return {'id': str(application.id)}, 200
 
     @jwt_required

@@ -74,7 +74,7 @@ def build_signup_mail(message, username, pin):
     text = f"""\
 Thanks for Signing Up!
 Welcome to E-Dafar, {username}. Please click on the below button to verify your account.
-http://daftar-webapp.herokuapp.com/{pin}
+http://daftar-webapp.herokuapp.com/verify={pin}
 !"""
 
     html = load_signup_template().format(username=username, pin=pin)

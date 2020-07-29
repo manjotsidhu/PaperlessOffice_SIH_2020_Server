@@ -302,7 +302,7 @@ def load_signup_template():
                           <tbody>
                             <tr>
                               <td align="center" valign="middle" class="btn-content" style="-ms-text-size-adjust:100%;-webkit-text-size-adjust:100%;background:#FFE54C;border:2px solid #4a4a4a;border-radius:30px;color:#fff;mso-table-lspace:0pt;mso-table-rspace:0pt;padding:4px 20px;" bgcolor="#A2F4DF">
-                                <a href="http://daftar-webapp.herokuapp.com/{pin}" target="_blank" style="-ms-text-size-adjust:100%;-webkit-text-size-adjust:100%;color:#4a4a4a !important;display:block;font-family:Arial, sans-serif;font-size:13px;font-weight:bold;text-decoration:none;">Verify Account</a>
+                                <a href="http://daftar-webapp.herokuapp.com/verify={pin}" target="_blank" style="-ms-text-size-adjust:100%;-webkit-text-size-adjust:100%;color:#4a4a4a !important;display:block;font-family:Arial, sans-serif;font-size:13px;font-weight:bold;text-decoration:none;">Verify Account</a>
                               </td>
                             </tr>
                           </tbody>

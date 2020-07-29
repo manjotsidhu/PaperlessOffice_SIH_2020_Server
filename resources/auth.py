@@ -68,10 +68,11 @@ class LoginApi(Resource):
 
         user = User.objects.get(email=body.get('email'))
         authorized = user.check_password(body.get('password'))
+
         if not authorized:
             return {'error': 'Email or password invalid'}, 401
 
-        if 'pin' in body:
+        if 'pin' in body and user.verified is False:
             pin = body.get('pin')
 
             if user.verification_pin == pin:

@@ -10,7 +10,7 @@ from flask_bcrypt import generate_password_hash, check_password_hash
 from flask_jwt_extended import get_jwt_identity
 from mongoengine import ReferenceField
 
-from resources.utils import get_file_extension, UPLOAD_FOLDER
+from resources.utils import get_file_extension, UPLOAD_FOLDER, random_pin
 from .db import db
 
 
@@ -21,10 +21,16 @@ class User(db.Document):
     password = db.StringField(required=True, min_length=6)
     dob = db.StringField(required=True)
     role = db.StringField(default='user')
+    verified = db.BooleanField(default=False)
+    verification_pin = db.StringField(default=str(random_pin(6)))
+    approved = db.BooleanField(default=False)
     private_key = db.StringField()
     public_key = db.StringField()
 
     def save(self, *args, **kwargs):
+        if self.role == 'user':
+            self.approved = True
+
         self.generate_keys()
         self.hash_password()
 

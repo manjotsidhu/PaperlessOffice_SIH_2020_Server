@@ -1,6 +1,7 @@
 from flask import make_response
 from bson.json_util import dumps
 from flask_jwt_extended import get_jwt_identity
+from random import randint
 
 ALLOWED_EXTENSIONS = set(['pdf', 'png', 'jpg', 'jpeg'])
 UPLOAD_FOLDER = 'uploads'
@@ -34,3 +35,8 @@ def allowed_file(filename):
 def get_file_extension(filename):
     return filename.rsplit('.', 1)[1].lower()
 
+
+def random_pin(n):
+    range_start = 10 ** (n - 1)
+    range_end = (10 ** n) - 1
+    return randint(range_start, range_end)

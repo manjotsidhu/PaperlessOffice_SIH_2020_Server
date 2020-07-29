@@ -7,8 +7,9 @@ from flask_restful import Resource
 from flask_jwt_extended import jwt_required, get_jwt_identity
 
 from resources.auth import admin_required
-from resources.utils import UPLOAD_FOLDER, get_user_id
+from resources.utils import UPLOAD_FOLDER, get_user_id, get_user_email, get_user_name
 from services.export2excel.export2excel import export_to_excel
+from services.smtp.smtp import send_email_async
 
 
 class UsersApi(Resource):

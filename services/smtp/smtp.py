@@ -22,13 +22,13 @@ fp.close()
 context = ssl.create_default_context()
 
 
-def send_email_async(receiver, type, username=None, notif=None):
-    thread = Thread(target=send_email, args=(receiver, type, username, notif))
+def send_email_async(receiver, type, username=None, notif=None, pin=None):
+    thread = Thread(target=send_email, args=(receiver, type, username, notif, pin))
     thread.start()
 
 
-def send_email(receiver, type, username=None, notif=None):
-    message = make_message(receiver, type, username=username, notif=notif)
+def send_email(receiver, type, username=None, notif=None, pin=None):
+    message = make_message(receiver, type, username=username, notif=notif, pin=pin)
     try:
         if not smtp_pass:
             # Use MailTrap Testing Server
@@ -51,7 +51,7 @@ def send_email(receiver, type, username=None, notif=None):
         print('smtp error occurred: ' + str(e))
 
 
-def make_message(receiver, type, notif, username=None):
+def make_message(receiver, type, notif, username=None, pin=None):
     message = MIMEMultipart("alternative")
     message["From"] = sender
     if username is not None:
@@ -60,8 +60,8 @@ def make_message(receiver, type, notif, username=None):
         message["To"] = receiver
 
     if type == 'signup':
-        message["Subject"] = "Welcome to E-Daftar!"
-        build_signup_mail(message, username)
+        message["Subject"] = "Welcome to E-Daftar! Verify Email"
+        build_signup_mail(message, username, pin)
     elif type == 'notification':
         message["Subject"] = "Daftar Notifications!"
         build_notification_mail(message, username, notif)
@@ -69,17 +69,15 @@ def make_message(receiver, type, notif, username=None):
     return message
 
 
-def build_signup_mail(message, username):
-    # TODO: VERIFICATION LINK
-    link = 'TODO'
+def build_signup_mail(message, username, pin):
 
     text = f"""\
 Thanks for Signing Up!
 Welcome to E-Dafar, {username}. Please click on the below button to verify your account.
-{link}
+http://daftar-webapp.herokuapp.com/{pin}
 !"""
 
-    html = load_signup_template().format(username=username, link=link)
+    html = load_signup_template().format(username=username, pin=pin)
 
     part1 = MIMEText(text, "plain")
     part2 = MIMEText(html, "html")
@@ -89,9 +87,6 @@ Welcome to E-Dafar, {username}. Please click on the below button to verify your 
 
 
 def build_notification_mail(message, username, content):
-    # TODO: VERIFICATION LINK
-    link = 'TODO'
-
     text = f"""\
 You have a new Notification!
 {content}

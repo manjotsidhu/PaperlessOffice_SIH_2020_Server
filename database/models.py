@@ -21,6 +21,7 @@ class User(db.Document):
     password = db.StringField(required=True, min_length=6)
     dob = db.StringField(required=True)
     role = db.StringField(default='user')
+    costOfPaper = db.StringField(default=0.50)
     verified = db.BooleanField(default=False)
     verification_pin = db.StringField(default=str(random_pin(6)))
     approved = db.BooleanField(default=False)

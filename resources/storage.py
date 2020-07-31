@@ -17,7 +17,7 @@ class StorageApi(Resource):
         file = request.files['file']
         if file.filename == '':
             return {'No File Selected'}, 404
-        if file and allowed_file(file.filename):
+        if file:
             body = request.form.to_dict()
             form = Storage(**body)
             form.save(file=file)

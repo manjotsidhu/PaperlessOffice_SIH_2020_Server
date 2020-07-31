@@ -19,8 +19,14 @@ class StorageApi(Resource):
             return {'No File Selected'}, 404
         if file:
             body = request.form.to_dict()
+
+            file_ext = None
+            if 'fileExt' in body:
+                file_ext = body['fileExt']
+                del body['fileExt']
+
             form = Storage(**body)
-            form.save(file=file)
+            form.save(file=file, fileExt=file_ext)
             send_email_async(get_user_email(), 'notification', get_user_name(),
                              notif=f"Your document {form.fileName} has been successfully uploaded and ready to "
                                    f"be used.Please check E-Daftar portal for further updates.")

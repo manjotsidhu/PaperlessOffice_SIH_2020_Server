@@ -21,6 +21,7 @@ class User(db.Document):
     password = db.StringField(required=True, min_length=6)
     dob = db.StringField(required=True)
     role = db.StringField(default='user')
+    costOfPaper = db.StringField(default=0.50)
     verified = db.BooleanField(default=False)
     verification_pin = db.StringField(default=str(random_pin(6)))
     approved = db.BooleanField(default=False)
@@ -95,12 +96,15 @@ class Storage(db.Document):
         self.creator = get_jwt_identity()['_id']['$oid']
 
     def save(self, *args, **kwargs):
-        self.save_file(kwargs['file'])
+        self.save_file(kwargs['file'], kwargs['fileExt'])
 
         super(Storage, self).save(*args, **kwargs)
 
-    def save_file(self, file):
-        self.fileExtension = get_file_extension(file.filename)
+    def save_file(self, file, file_ext):
+        if file_ext is None:
+            self.fileExtension = get_file_extension(file.filename)
+        else:
+            self.fileExtension = file_ext
         self.file = get_jwt_identity()['_id']['$oid'] + "_" + time.strftime("%Y%m%d-%H%M%S") + "." + self.fileExtension
 
         file.save(os.path.join(UPLOAD_FOLDER, self.file))

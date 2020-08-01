@@ -150,6 +150,7 @@ class SigningApi(Resource):
         application.update(signatures=signatures)
 
         if application.stage == application.stages - 1:
+            application.update(stage=current_stage + 1)
             application.update(status=1)
         else:
             workflow = Workflow.objects(id=application.workflowId).get()

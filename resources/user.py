@@ -15,8 +15,12 @@ from services.smtp.smtp import send_email_async
 class UsersApi(Resource):
     @jwt_required
     def get(self):
-        u = User.objects(Q(role=get_jwt_identity()['role']))\
-                .exclude('private_key', 'public_key', 'password')
+        u = User.objects(Q(role=get_jwt_identity()['role'])).\
+                exclude('private_key', 'public_key', 'password')
+
+        if 'unapproved' in request.args:
+            u = User.objects(Q(role=get_jwt_identity()['role']) & Q(approved=False)).\
+                exclude('private_key', 'public_key', 'password')
 
         if 'excel' in request.args:
             return send_from_directory(directory=UPLOAD_FOLDER, filename=export_to_excel(u, get_user_id()))
@@ -33,8 +37,8 @@ class UsersApi(Resource):
 class UserApi(Resource):
     @jwt_required
     def get(self):
-        user = get_jwt_identity()
-        return Response(json.dumps(user), mimetype="application/json", status=200)
+        user = User.objects().get(id=get_user_id())
+        return Response(user.to_json(), mimetype="application/json", status=200)
 
     @jwt_required
     def delete(self):

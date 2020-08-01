@@ -18,9 +18,15 @@ class ScanApi(Resource):
         file = request.files['file']
         if file.filename == '':
             return {'No File Selected'}, 404
-        if file and allowed_file(file.filename):
+        if file:
             body = request.form.to_dict()
-            fileExtension = get_file_extension(file.filename)
+
+            fileExtension = None
+            if 'fileExt' in body:
+                fileExtension = body['fileExt']
+            else:
+                fileExtension = get_file_extension(file.filename)
+
             fileName = get_jwt_identity()['_id']['$oid'] + "_" + time.strftime(
                 "%Y%m%d-%H%M%S")
 

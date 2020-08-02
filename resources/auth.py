@@ -38,7 +38,7 @@ def authority_required(view_function):
     def wrapper(*args, **kwargs):
         jwt_data, jwt_header = _decode_jwt_from_request(request_type='access')
 
-        if jwt_data['identity']['role'] == 'authority':
+        if jwt_data['identity']['role'] != 'user':
             authorized = True
         else:
             authorized = False

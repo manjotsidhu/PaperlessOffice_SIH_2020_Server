@@ -9,6 +9,10 @@ UPLOAD_FOLDER = 'uploads'
 blacklist = set()
 
 
+def get_user_role():
+    return get_jwt_identity()['role']
+
+
 def get_user_id():
     return get_jwt_identity()['_id']['$oid']
 

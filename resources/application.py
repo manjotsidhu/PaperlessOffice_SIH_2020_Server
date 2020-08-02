@@ -79,7 +79,7 @@ class ApplicationsApi(Resource):
         if 'limit' in request.args:
             limit_q = int(request.args['limit'])
 
-        if get_jwt_identity()['role'] == 'authority':
+        if get_jwt_identity()['role'] != 'user':
             if filter_q is not None:
                 q = Application.objects(filter_q & (Q(assignedId=get_jwt_identity()['_id']['$oid']) |
                                                     Q(creatorId=get_jwt_identity()['_id']['$oid'])))

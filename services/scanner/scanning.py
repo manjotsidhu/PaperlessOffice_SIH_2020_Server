@@ -61,6 +61,7 @@ def scan(input, output):
 	cnts = sorted(cnts, key=cv2.contourArea, reverse=True)[:5]
 
 	# loop over the contours
+	screenCnt = None
 	for c in cnts:
 		peri = cv2.arcLength(c, True)
 		approx = cv2.approxPolyDP(c, 0.02 * peri, True)

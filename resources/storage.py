@@ -3,7 +3,7 @@ from flask_jwt_extended import jwt_required, get_jwt_identity
 from flask_restful import Resource
 from mongoengine import Q
 from database.models import Storage
-from resources.utils import allowed_file, UPLOAD_FOLDER, get_user_email, get_user_name, get_user_id
+from resources.utils import allowed_file, UPLOAD_FOLDER, get_user_email, get_user_name, get_user_id, get_user_role
 from services.export2excel.export2excel import export_to_excel
 from services.smtp.smtp import send_email_async
 
@@ -36,7 +36,7 @@ class StorageApi(Resource):
 
     @jwt_required
     def get(self):
-        q = Storage.objects(Q(creator=get_jwt_identity()['_id']['$oid']) | Q(visibility='public')).order_by('-timestamp')
+        q = Storage.objects(Q(creator=get_jwt_identity()['_id']['$oid']) | Q(visibility='public') | Q(visibilty=get_user_role())).order_by('-timestamp')
 
         if 'limit' in request.args:
             limit = int(request.args['limit'])

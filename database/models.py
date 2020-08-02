@@ -127,6 +127,17 @@ class Workflow(db.Document):
     def __init__(self, *args, **kwargs):
         db.Document.__init__(self, *args, **kwargs)
 
+        for stage in self.stages:
+            if 'authId' not in stage:
+                data = User.objects.aggregate([
+                    {"$match": {"role": stage['role']}},
+                    {"$sample": {"size": 1}}
+                ])
+
+                for d in data:
+                    stage['authId'] = str(d['_id'])
+                    stage['authName'] = str(d['first_name']) + " " + str(d['last_name'])
+
         if self.creatorId is None:
             self.creatorId = get_jwt_identity()['_id']['$oid']
 

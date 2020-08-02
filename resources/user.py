@@ -15,7 +15,7 @@ from services.smtp.smtp import send_email_async
 class UsersApi(Resource):
     @jwt_required
     def get(self):
-        u = User.objects(Q(role=get_jwt_identity()['role'])).\
+        u = User.objects(role__nin=['user']).\
                 exclude('private_key', 'public_key', 'password')
 
         if 'unapproved' in request.args:

@@ -96,18 +96,29 @@ class Storage(db.Document):
         self.creator = get_jwt_identity()['_id']['$oid']
 
     def save(self, *args, **kwargs):
-        self.save_file(kwargs['file'], kwargs['fileExt'])
+        self.save_file(kwargs['file'], kwargs['fileExt'], kwargs['scan'])
 
         super(Storage, self).save(*args, **kwargs)
 
-    def save_file(self, file, file_ext):
+    def save_file(self, file, file_ext, scan):
         if file_ext is None:
             self.fileExtension = get_file_extension(file.filename)
         else:
             self.fileExtension = file_ext
         self.file = get_jwt_identity()['_id']['$oid'] + "_" + time.strftime("%Y%m%d-%H%M%S") + "." + self.fileExtension
 
-        file.save(os.path.join(UPLOAD_FOLDER, self.file))
+        if scan:
+            fileName = get_jwt_identity()['_id']['$oid'] + "_" + time.strftime(
+                "%Y%m%d-%H%M%S")
+
+            input = os.path.join(UPLOAD_FOLDER, self.file)
+            output = os.path.join(UPLOAD_FOLDER, fileName + "_scanned." + self.fileExtension)
+            file.save(input)
+
+            scan(input, output)
+            self.file = fileName + "_scanned." + self.fileExtension
+        else:
+            file.save(os.path.join(UPLOAD_FOLDER, self.file))
 
 
 class Stage(db.Document):

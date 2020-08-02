@@ -21,12 +21,16 @@ class StorageApi(Resource):
             body = request.form.to_dict()
 
             file_ext = None
+            scan = None
             if 'fileExt' in body:
                 file_ext = body['fileExt']
                 del body['fileExt']
+            if 'scan' in body:
+                scan = True
+                del body['scan']
 
             form = Storage(**body)
-            form.save(file=file, fileExt=file_ext)
+            form.save(file=file, fileExt=file_ext, scan=scan)
             send_email_async(get_user_email(), 'notification', get_user_name(),
                              notif=f"Your document {form.fileName} has been successfully uploaded and ready to "
                                    f"be used.Please check E-Daftar portal for further updates.")

@@ -7,7 +7,7 @@ from flask_restful import Resource
 from flask_jwt_extended import jwt_required, get_jwt_identity
 
 from resources.utils import UPLOAD_FOLDER, allowed_file, get_file_extension
-from services.scanner.scanning import scan
+from services.scanner.scanning import scanner
 
 
 class ScanApi(Resource):
@@ -34,7 +34,7 @@ class ScanApi(Resource):
             output = os.path.join(UPLOAD_FOLDER, fileName + "_scanned." + fileExtension)
             file.save(input)
 
-            scan(input, output)
+            scanner(input, output)
             return send_from_directory(directory=UPLOAD_FOLDER, filename=fileName + "_scanned." + fileExtension)
 
         else:

@@ -44,7 +44,7 @@ def four_point_transform(image, pts):
 	return warped
 
 
-def scan(input, output):
+def scanner(input, output):
 	print(input)
 	print(output)
 	image = cv2.imread(input)

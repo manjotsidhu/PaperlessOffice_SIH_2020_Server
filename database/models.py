@@ -11,6 +11,7 @@ from flask_jwt_extended import get_jwt_identity
 from mongoengine import ReferenceField
 
 from resources.utils import get_file_extension, UPLOAD_FOLDER, random_pin
+from services.scanner.scanning import scanner
 from .db import db
 
 
@@ -115,7 +116,7 @@ class Storage(db.Document):
             output = os.path.join(UPLOAD_FOLDER, fileName + "_scanned." + self.fileExtension)
             file.save(input)
 
-            scan(input, output)
+            scanner(input, output)
             self.file = fileName + "_scanned." + self.fileExtension
         else:
             file.save(os.path.join(UPLOAD_FOLDER, self.file))
